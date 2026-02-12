@@ -1,0 +1,103 @@
+#!/usr/bin/env bash
+#
+# lab - Root-level CLI runner for linux-lab
+#
+# Follows 12-factor CLI standards:
+# - Standardized flags: --help, --version
+# - Logging to stderr (via common.sh)
+# - Environment-based configuration
+# - Proper exit codes
+
+set -euo pipefail
+
+# Get the root directory of the lab
+LAB_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+export LAB_ROOT
+
+# Source common helpers
+COMMON_SH="$LAB_ROOT/shared/scripts/common.sh"
+if [[ -f "$COMMON_SH" ]]; then
+    # shellcheck source=shared/scripts/common.sh
+    source "$COMMON_SH"
+else
+    echo "Error: Required helper script not found at $COMMON_SH" >&2
+    exit 1
+fi
+
+VERSION="0.1.0"
+
+show_usage() {
+    cat <<EOF
+Usage: $(basename "$0") [OPTIONS] COMMAND [ARGS...]
+
+Linux Lab CLI runner for system internals and performance labs.
+
+Options:
+  -h, --help      Show this help message and exit
+  -v, --version   Show version information and exit
+
+Commands:
+  setup           Set up the lab environment
+  verify          Verify lab configuration and compliance
+  cpu             CPU internals and scheduling labs
+  memory          Memory management labs
+  networking      Network stack exploration labs
+  storage         Storage and I/O labs
+  gpu             GPU monitoring and utilization
+  observability   eBPF and tracing tools
+  performance     Benchmarking and profiling
+  troubleshooting Systemic debugging scenarios
+
+Run '$(basename "$0") COMMAND --help' for more information on a command.
+EOF
+}
+
+show_version() {
+    echo "lab version $VERSION"
+}
+
+# Main entry point
+main() {
+    if [[ $# -eq 0 ]]; then
+        show_usage
+        exit 0
+    fi
+
+    case "$1" in
+        -h|--help)
+            show_usage
+            exit 0
+            ;;
+        -v|--version)
+            show_version
+            exit 0
+            ;;
+        setup)
+            log_step "Starting lab setup..."
+            "$LAB_ROOT/scripts/setup.sh" "${@:2}"
+            ;;
+        verify)
+            log_step "Verifying lab compliance..."
+            "$LAB_ROOT/scripts/verify.sh" "${@:2}"
+            ;;
+        cpu|memory|networking|storage|gpu|observability|performance|troubleshooting)
+            local module="$1"
+            log_info "Navigating to module: $module"
+            if [[ -d "$LAB_ROOT/$module" ]]; then
+                # Future: dispatch to module-specific runners
+                log_warn "Module $module exists but runner is not yet implemented."
+                exit 0
+            else
+                log_error "Module directory '$LAB_ROOT/$module' not found."
+                exit 1
+            fi
+            ;;
+        *)
+            log_error "Unknown command: $1"
+            show_usage
+            exit 1
+            ;;
+    esac
+}
+
+main "$@"
