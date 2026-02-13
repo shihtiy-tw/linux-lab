@@ -105,3 +105,10 @@ See: `.opencode/command/*.md` for lab management
   - Destructive storage operations (fdisk, mkfs)
   - Network configuration changes
 - Use dry-run modes when profiling production-like workloads
+
+## Active Technologies
+- C (Clang 15+), Rust (1.75+), Go (1.21+), Python (3.10+) + libbpf, bpftool, perf, ftrace, gdb, tcpdump, flamegraph (001-comprehensive-linux-labs)
+- N/A (mostly system-level probing) (001-comprehensive-linux-labs)
+
+## Recent Changes
+- 001-comprehensive-linux-labs: Added C (Clang 15+), Rust (1.75+), Go (1.21+), Python (3.10+) + libbpf, bpftool, perf, ftrace, gdb, tcpdump, flamegraph
